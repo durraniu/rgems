@@ -1,5 +1,5 @@
 ---
-title: Draw cars using ggplot2
+title: Draw cars with ggplot2
 author: Umair Durrani
 date: '2020-09-07'
 slug: creating-your-own-geom-in-ggplot2
