@@ -13,7 +13,7 @@ output:
 ---
 
 ## Credit: 
-Thanks to [BrodieG](https://twitter.com/brodiegaslam?lang=en) for answeing my [stackoverflow question](https://stackoverflow.com/questions/22159087/is-it-possible-to-draw-diagrams-in-r) about drawing diagrams in R.  
+Thanks to [BrodieG](https://twitter.com/brodiegaslam?lang=en) for answering my [stackoverflow question](https://stackoverflow.com/questions/22159087/is-it-possible-to-draw-diagrams-in-r) about drawing diagrams in R.  
 
 # I wanted to draw cars 
 
