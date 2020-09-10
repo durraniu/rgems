@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>erroR on R gems and collection of erroRs</title>
+    <link>/categories/error/</link>
+    <description>Recent content in erroR on R gems and collection of erroRs</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 07 Sep 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/error/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Creating your own geom in ggplot2</title>
+      <link>/post/2020/09/07/creating-your-own-geom-in-ggplot2/</link>
+      <pubDate>Mon, 07 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/09/07/creating-your-own-geom-in-ggplot2/</guid>
+      <description>Load LibrariessuppressPackageStartupMessages( library(tidyverse) )suppressPackageStartupMessages( library(here) )suppressPackageStartupMessages( library(readr) )Link to the stackoverflow answerLoad datato do: change the following path to a urldf &amp;lt;- read_csv(here(&amp;quot;static&amp;quot;, &amp;quot;data&amp;quot;, &amp;quot;driver_data.csv&amp;quot;))## Parsed with column specification:## cols(## Time_s = col_double(),## ED_x_m = col_double(),## ED_y_m = col_double(),## LV_x_m = col_double(),## LV_y_m = col_double(),## LV_length_m = col_double(),## LV_width_m = col_double(),## visual_angle_W = col_double(),## visual_angle_H = col_double(),## tau = col_double(),## ED_length_m = col_double(),## ED_width_m = col_double()## )knitr::kable(df)Time_sED_x_mED_y_mLV_x_mLV_y_mLV_length_mLV_width_mvisual_angle_Wvisual_angle_HtauED_length_mED_width_m14341.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Home on R gems and collection of erroRs</title>
+    <link>/</link>
+    <description>Recent content in Home on R gems and collection of erroRs</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 07 Sep 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Draw cars using ggplot2</title>
+      <link>/post/2020/09/07/creating-your-own-geom-in-ggplot2/</link>
+      <pubDate>Mon, 07 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/09/07/creating-your-own-geom-in-ggplot2/</guid>
+      <description>Credit:I wanted to draw carsCreating geom_carLoad LibrariesLoad dataCoordinates plotStep 1: Create a car image with no fill colorStep 2: Create a graphical object (grob) from the imageStep 3: Map the data to the grob using ggprotoStep 4: Create the external interface i.e. the geom_car layerPlotting the carsAttempt 1 to plot carsAttemp 2: Adjust the coordinates and plot againAttempt 3 - Fixing y coordinateCar Rear ViewBonus: AnimationCredit:Thanks to BrodieG for answeing my stackoverflow question about drawing diagrams in R.</description>
+    </item>
+    
+    <item>
+      <title>About R gems</title>
+      <link>/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/about/</guid>
+      <description>This blog is about all the R gems that I&amp;rsquo;ve found and bookmarked on Twitter over the years. I also record my mitakes and errors in R coding and write about how I eventually found a solution. You might find something interesting and useful here.</description>
+    </item>
+    
+  </channel>
+</rss>
