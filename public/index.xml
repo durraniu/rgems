@@ -12,12 +12,12 @@
     
     
     <item>
-      <title>Draw cars using ggplot2</title>
+      <title>Draw cars with ggplot2</title>
       <link>/post/2020/09/07/creating-your-own-geom-in-ggplot2/</link>
       <pubDate>Mon, 07 Sep 2020 00:00:00 +0000</pubDate>
       
       <guid>/post/2020/09/07/creating-your-own-geom-in-ggplot2/</guid>
-      <description>Credit:I wanted to draw carsCreating geom_carLoad LibrariesLoad dataCoordinates plotStep 1: Create a car image with no fill colorStep 2: Create a graphical object (grob) from the imageStep 3: Map the data to the grob using ggprotoStep 4: Create the external interface i.e. the geom_car layerPlotting the carsAttempt 1 to plot carsAttemp 2: Adjust the coordinates and plot againAttempt 3 - Fixing y coordinateCar Rear ViewBonus: AnimationCredit:Thanks to BrodieG for answeing my stackoverflow question about drawing diagrams in R.</description>
+      <description>Credit:I wanted to draw carsCreating geom_carLoad LibrariesLoad dataCoordinates plotStep 1: Create a car image with no fill colorStep 2: Create a graphical object (grob) from the imageStep 3: Map the data to the grob using ggprotoStep 4: Create the external interface i.e. the geom_car layerPlotting the carsAttempt 1 to plot carsAttemp 2: Adjust the coordinates and plot againAttempt 3 - Fixing y coordinateCar Rear ViewBonus: AnimationCredit:Thanks to BrodieG for answering my stackoverflow question about drawing diagrams in R.</description>
     </item>
     
     <item>
