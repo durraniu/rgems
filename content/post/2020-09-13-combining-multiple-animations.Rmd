@@ -9,6 +9,9 @@ tags:
   - ggplot2
   - gganimate
   - magick
+output:
+  blogdown::html_page:
+    toc: true
 ---
 
 ## Credit
