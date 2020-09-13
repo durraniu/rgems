@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>magick on R gems and collection of erroRs</title>
+    <link>/tags/magick/</link>
+    <description>Recent content in magick on R gems and collection of erroRs</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 13 Sep 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/magick/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Creating and combining multiple animations with gganimate and magick</title>
+      <link>/post/2020/09/13/combining-multiple-animations/</link>
+      <pubDate>Sun, 13 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/09/13/combining-multiple-animations/</guid>
+      <description>CreditThanks to Robert Walker for showing how to combine multiple animations using the magick package in R.
+Wow, you can side-by-side gganimates with imagemagick. That was fun to put together. #rstats #tidyTuesday An adaptation of measles and a map… pic.twitter.com/FPOgAOQS84— Robert Walker (@PieRatio) December 16, 2019Animating carsIn a previous blogpost, I showed how to create a new geom to plot cars as seen from top and rear.</description>
+    </item>
+    
+  </channel>
+</rss>

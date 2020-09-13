@@ -1,0 +1,226 @@
+---
+title: Creating and combining multiple animations with gganimate and magick
+author: Umair Durrani
+date: '2020-09-13'
+slug: combining-multiple-animations
+categories:
+  - gem
+tags:
+  - ggplot2
+  - gganimate
+  - magick
+---
+
+
+
+<div id="credit" class="section level2">
+<h2>Credit</h2>
+<p>Thanks to <strong>Robert Walker</strong> for showing how to combine multiple animations using the <code>magick</code> package in R.</p>
+<blockquote class="twitter-tweet">
+<p lang="en" dir="ltr">
+Wow, you can side-by-side gganimates with imagemagick. That was fun to put together. <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> <a href="https://twitter.com/hashtag/tidyTuesday?src=hash&amp;ref_src=twsrc%5Etfw">#tidyTuesday</a> An adaptation of measles and a map… <a href="https://t.co/FPOgAOQS84">pic.twitter.com/FPOgAOQS84</a>
+</p>
+— Robert Walker (<span class="citation">@PieRatio</span>) <a href="https://twitter.com/PieRatio/status/1206508341750456320?ref_src=twsrc%5Etfw">December 16, 2019</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+<div id="animating-cars" class="section level1">
+<h1>Animating cars</h1>
+<p>In a <a href="https://rgems.netlify.app/post/2020/09/07/creating-your-own-geom-in-ggplot2/">previous blogpost</a>, I showed how to create a new geom to plot cars as seen from top and rear. This post is about animating them in a way to synchronie their timing.</p>
+<p><code>gganimate</code> package is a powerful animation package in R, but as of this writing, it does not have a function to combine multiple animations. So, we’ll use the <code>magick</code> package to combine the animations.</p>
+<div id="load-data" class="section level2">
+<h2>Load data</h2>
+<p>I am using a dataset that contains car positions, speed and distance (also called as <em>spacing</em>).</p>
+<pre class="r"><code>suppressPackageStartupMessages( library(tidyverse) )
+suppressPackageStartupMessages( library(magick) )
+suppressPackageStartupMessages( library(gganimate) )
+suppressPackageStartupMessages( library(here) )
+suppressPackageStartupMessages( library(readr) )
+
+df &lt;- read_csv(here::here(&quot;static&quot;, &quot;data&quot;, &quot;vb.csv&quot;))</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   Time_s = col_double(),
+##   ED_x_m = col_double(),
+##   LV_x_m = col_double(),
+##   LV_length_m = col_double(),
+##   LV_width_m = col_double(),
+##   visual_angle_W = col_double(),
+##   visual_angle_H = col_double(),
+##   tau = col_double(),
+##   ED_speed_mps = col_double(),
+##   LV_speed_mps = col_double(),
+##   LV_frspacing_m = col_double(),
+##   ED_gas_pedal_pos = col_double(),
+##   ED_brake_pedal_force_kg = col_double(),
+##   tau_inv = col_double()
+## )</code></pre>
+<pre class="r"><code>df</code></pre>
+<pre><code>## # A tibble: 49 x 14
+##    Time_s ED_x_m LV_x_m LV_length_m LV_width_m visual_angle_W visual_angle_H
+##     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;
+##  1      1  4341.  3991.        5.39       2.29        0.00185        0.00128
+##  2      2  4335.  3991.        5.39       2.29        0.00189        0.00130
+##  3      3  4329.  3991.        5.39       2.29        0.00193        0.00133
+##  4      4  4322.  3991.        5.39       2.29        0.00197        0.00136
+##  5      5  4315.  3991.        5.39       2.29        0.00201        0.00138
+##  6      6  4308.  3991.        5.39       2.29        0.00205        0.00141
+##  7      7  4302.  3991.        5.39       2.29        0.00210        0.00145
+##  8      8  4294.  3991.        5.39       2.29        0.00215        0.00148
+##  9      9  4287.  3991.        5.39       2.29        0.00220        0.00152
+## 10     10  4280.  3991.        5.39       2.29        0.00226        0.00156
+## # ... with 39 more rows, and 7 more variables: tau &lt;dbl&gt;, ED_speed_mps &lt;dbl&gt;,
+## #   LV_speed_mps &lt;dbl&gt;, LV_frspacing_m &lt;dbl&gt;, ED_gas_pedal_pos &lt;dbl&gt;,
+## #   ED_brake_pedal_force_kg &lt;dbl&gt;, tau_inv &lt;dbl&gt;</code></pre>
+<p>As discussed in the <a href="https://rgems.netlify.app/post/2020/09/07/creating-your-own-geom-in-ggplot2/">previous blogpost</a>, I had to adjust the coordinates to make one car appear approaching another car. So, we estimate the first and last coordinates in the data to do that.</p>
+<pre class="r"><code># Largest x coordinate of following vehicle------------------
+  first_ed_x_coord &lt;- df %&gt;% pull(ED_x_m) %&gt;% range() %&gt;% tail(1)
+  last_ed_x_coord &lt;- df %&gt;% pull(ED_x_m) %&gt;% range() %&gt;% head(1)</code></pre>
+</div>
+</div>
+<div id="creating-animations-with-gganimate" class="section level1">
+<h1>Creating animations with <code>gganimate</code></h1>
+<p>Now, the following code shows three animations created using <code>gganimate</code>.</p>
+<div id="top-view" class="section level2">
+<h2>Top view</h2>
+<pre class="r"><code># animation of position---------------------------------------
+  ani_car_b &lt;- ggplot(df) +
+    geom_car(aes(x=abs(ED_x_m-first_ed_x_coord), 
+                 y=first_ed_x_coord-last_ed_x_coord, length=4.64, width=2.078, fill=&quot;ed&quot;)) +
+    geom_text(aes(x=abs(ED_x_m-first_ed_x_coord), y = (first_ed_x_coord-last_ed_x_coord)+3,
+                  label = paste(&quot;Following Car\nSpeed =&quot;, ED_speed_mps, &quot;m/s&quot;)),
+              color=&quot;darkgray&quot;
+    ) +
+    geom_car(aes(x=abs(LV_x_m-first_ed_x_coord), y=first_ed_x_coord-last_ed_x_coord, length=LV_length_m,
+                 width=LV_width_m, fill=&quot;lv&quot;)) +
+    geom_text(aes(x=abs(LV_x_m-first_ed_x_coord), y = (first_ed_x_coord-last_ed_x_coord)+3, 
+                  label = paste(&quot;Lead Car\nSpeed =&quot;, LV_speed_mps, &quot;m/s&quot;)),
+              color=&quot;darkgray&quot;) +
+    
+    geom_segment(aes(x = abs(ED_x_m-first_ed_x_coord)+(0.5*4.64),
+                     xend = abs(LV_x_m-first_ed_x_coord)-(0.5*LV_length_m),
+                     y = first_ed_x_coord-last_ed_x_coord,
+                     yend= first_ed_x_coord-last_ed_x_coord), 
+                 arrow = arrow(length = unit(0.1, &quot;inches&quot;), ends = &quot;both&quot;)) +
+    geom_text(aes(x= ((abs(ED_x_m-first_ed_x_coord)+(0.5*4.64))+(abs(LV_x_m-first_ed_x_coord)-(0.5*LV_length_m)))/2, y = (first_ed_x_coord-last_ed_x_coord)+3.5, 
+                  label = paste(&quot;Spacing =&quot;, LV_frspacing_m, &quot;m&quot;)),
+              color=&quot;darkgray&quot;) +
+    
+    coord_equal(ratio=0.7) +
+    scale_fill_manual(values = c(&quot;blue&quot;, &quot;black&quot;)) +
+    theme_void() +
+    theme(legend.position = &quot;none&quot;,
+          axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank()
+    ) +
+    transition_manual(Time_s) +
+    ease_aes() +
+    view_follow()
+
+ani_car_b</code></pre>
+<pre><code>## nframes and fps adjusted to match transition</code></pre>
+<p><img src="/post/2020-09-13-combining-multiple-animations_files/figure-html/ani1-1.gif" /><!-- --></p>
+</div>
+<div id="pedal-positions-and-inverse-time-to-collision" class="section level2">
+<h2>Pedal positions and inverse time-to-collision</h2>
+<p>The following animation shows how the gas and brake pedal positions change over time. The variable <code>tau-inverse</code> represents the inverse of time-to-collision (seconds until collision happens <em>if</em> cars don’t change their speeds).</p>
+<pre class="r"><code># animation of pedals/looming---------------------------------------
+pedals_pos_b &lt;- ggplot(data = df,
+                         mapping = aes(x = Time_s)) +
+    geom_line(aes(y = tau_inv*10), color = &quot;black&quot;) +
+    geom_text(aes(y = tau_inv*10,
+                  label = paste(&quot;tau-inv =&quot;, round(tau_inv, 2))), color = &quot;black&quot;,
+              size = 5) +
+    geom_area(aes(y = tau_inv*10), fill = &quot;gray&quot;,
+              position = &quot;identity&quot;, alpha=0.6)+
+    
+    geom_line(aes(y = scale(ED_gas_pedal_pos)), color = &quot;darkgreen&quot;) +
+    geom_text(aes(y = scale(ED_gas_pedal_pos)),
+              label = &quot;Gas Pedal&quot;, color = &quot;darkgreen&quot;) +
+    
+    geom_line(aes(y = scale(ED_brake_pedal_force_kg)), color = &quot;red&quot;) +
+    geom_text(aes(y = scale(ED_brake_pedal_force_kg)),
+              label = &quot;Brake Pedal&quot;, color = &quot;red&quot;) +
+    
+    geom_text(x= 10, y = 4, 
+              aes(label = paste(&quot;Brake Pedal Force =&quot;, 
+                                round(ED_brake_pedal_force_kg), &quot;kg&quot;))) +
+    theme_void() +
+    transition_reveal(Time_s)
+  
+
+ pedals_pos_b</code></pre>
+<p><img src="/post/2020-09-13-combining-multiple-animations_files/figure-html/ani2-1.gif" /><!-- --></p>
+</div>
+<div id="drivers-front-view" class="section level2">
+<h2>Driver’s front view</h2>
+<p>The following animation shows what the driver in the following car sees from the windscreen. It represents how the image of the lead vehicle grows on the following driver’s retina.</p>
+<pre class="r"><code># animation of car rear---------------------------------------
+ani_retina_b &lt;- ggplot(df ) +
+    geom_car_rear(aes(x=0, y=0, length=visual_angle_W,
+                      width=visual_angle_H), fill=&quot;black&quot;) +
+    theme_void() +
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank())+
+    coord_fixed(ratio = 0.7) +
+    transition_manual(Time_s) 
+  
+ ani_retina_b</code></pre>
+<pre><code>## nframes and fps adjusted to match transition</code></pre>
+<p><img src="/post/2020-09-13-combining-multiple-animations_files/figure-html/ani3-1.gif" /><!-- --></p>
+</div>
+<div id="rendering-animations-and-saving-them" class="section level2">
+<h2>Rendering animations and saving them</h2>
+<p>Now that the three animations are created, we can render them using <code>gganimate::animate</code> function. Without doing this, the animations are rendered every time we call them.</p>
+<pre class="r"><code># Rendering gifs-------------------------------------------------
+  a_gif &lt;- animate(ani_car_b, height = 3, width = 8, end_pause = 15,
+                   units = &quot;in&quot;, res = 150, fps = 5, duration=10)
+  b_gif &lt;- animate(pedals_pos_b, fps = 5, duration=10,
+                   height = 3.5, width = 4.5, end_pause = 15,
+                   units = &quot;in&quot;, res = 150)
+  c_gif &lt;- animate(ani_retina_b, fps = 5, duration=10,
+                   height = 3.5, width = 3.5, end_pause = 15,
+                   units = &quot;in&quot;, res = 150)
+  
+## saving  
+anim_save(filename = here::here(&quot;static&quot;, &quot;data&quot;, &quot;a_gif.gif&quot;),
+          animation = a_gif)
+anim_save(filename = here::here(&quot;static&quot;, &quot;data&quot;, &quot;b_gif.gif&quot;),
+          animation = b_gif)
+anim_save(filename = here::here(&quot;static&quot;, &quot;data&quot;, &quot;c_gif.gif&quot;),
+          animation = c_gif)</code></pre>
+</div>
+</div>
+<div id="combining-animations" class="section level1">
+<h1>Combining animations</h1>
+<p>To combine the above three animations, we are going to use the <code>magick</code> package.</p>
+<div id="reading-the-gif-images" class="section level2">
+<h2>Reading the gif images</h2>
+<pre class="r"><code># Convertig the rendered gifs to magick class-------------
+  a_mgif &lt;- image_read(path = here::here(&quot;static&quot;, &quot;data&quot;, &quot;a_gif.gif&quot;))
+  b_mgif &lt;- image_read(path = here::here(&quot;static&quot;, &quot;data&quot;, &quot;b_gif.gif&quot;))
+  c_mgif &lt;- image_read(path = here::here(&quot;static&quot;, &quot;data&quot;, &quot;c_gif.gif&quot;))</code></pre>
+<p>By the reading the saved gif images (animations) using <code>magick::image_read()</code>, we convert the animation from the <strong>gif_image</strong> class to <strong>magick-image</strong> class.</p>
+</div>
+<div id="aligning-the-animations" class="section level2">
+<h2>Aligning the animations</h2>
+<p>Finally, we combine the animations using a <code>for-loop</code> and <code>magick::image_append</code>:</p>
+<pre class="r"><code># Aligning gifs-------------------------------------------------
+  bc_gif &lt;- image_append(c(b_mgif[1], c_mgif[1]), stack = FALSE)
+  for(i in 2:50){
+    combined &lt;- image_append(c(b_mgif[i], c_mgif[i]), stack = FALSE)
+    bc_gif &lt;- c(bc_gif, combined)
+  }
+
+  new_gif &lt;- image_append(c(a_mgif[1], bc_gif[1]), stack = TRUE)
+  for(i in 2:50){
+    combined &lt;- image_append(c(a_mgif[i], bc_gif[i]), stack = TRUE)
+    new_gif &lt;- c(new_gif, combined)
+  }
+
+ new_gif</code></pre>
+<p><img src="/post/2020-09-13-combining-multiple-animations_files/figure-html/unnamed-chunk-1-1.gif" /><!-- --></p>
+</div>
+</div>
