@@ -6,10 +6,19 @@
     <description>Recent content in Home on R gems and collection of erroRs</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Sep 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 14 Sep 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Create quick 3D maps in R with g3r package</title>
+      <link>/post/2020/09/14/create-quick-3d-maps-in-r-with-g3r-package/</link>
+      <pubDate>Mon, 14 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/09/14/create-quick-3d-maps-in-r-with-g3r-package/</guid>
+      <description>library(g3r)## Warning: replacing previous import &amp;#39;vctrs::data_frame&amp;#39; by &amp;#39;tibble::data_frame&amp;#39;## when loading &amp;#39;dplyr&amp;#39;# grand canyong3r(lat = 36.2058, lon = -112.4413, alpha = TRUE, mapbox_token = MAPBOX_TOKEN) %&amp;gt;% g3r_camera(.5,.5,1){&#34;x&#34;:{&#34;threegeo&#34;:{&#34;tokenMapbox&#34;:&#34;pk.eyJ1IjoiZHVycmFuaXUiLCJhIjoiY2p0Z21lazZqMDBjODQ5b2RrOXFwcHI5ZCJ9._DooiSrHiPv1bWhnTdMI1Q&#34;,&#34;unitsSide&#34;:1},&#34;lat&#34;:36.2058,&#34;lon&#34;:-112.4413,&#34;radius&#34;:5,&#34;zoom&#34;:12,&#34;alpha&#34;:true,&#34;backgroundColor&#34;:&#34;0xffffff&#34;,&#34;backgroundAlpha&#34;:0,&#34;camera&#34;:{&#34;lat&#34;:0.5,&#34;lon&#34;:0.5,&#34;elevation&#34;:1}},&#34;evals&#34;:[],&#34;jsHooks&#34;:[]}</description>
+    </item>
     
     <item>
       <title>Creating and combining multiple animations with gganimate and magick</title>

@@ -1,0 +1,24 @@
+---
+title: Create quick 3D maps in R with g3r package
+author: Umair Durrani
+date: '2020-09-14'
+slug: create-quick-3d-maps-in-r-with-g3r-package
+categories:
+  - gem
+tags:
+  - webgl
+---
+
+```{r mbtoken, echo=FALSE}
+MAPBOX_TOKEN <- "pk.eyJ1IjoiZHVycmFuaXUiLCJhIjoiY2p0Z21lazZqMDBjODQ5b2RrOXFwcHI5ZCJ9._DooiSrHiPv1bWhnTdMI1Q"
+```
+
+
+
+```{r gtr}
+library(g3r)
+
+# grand canyon
+g3r(lat = 36.2058, lon = -112.4413, alpha = TRUE, mapbox_token = MAPBOX_TOKEN) %>% g3r_camera(.5,.5,1)
+```
+

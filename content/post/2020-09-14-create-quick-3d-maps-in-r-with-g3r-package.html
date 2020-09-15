@@ -1,0 +1,27 @@
+---
+title: Create quick 3D maps in R with g3r package
+author: Umair Durrani
+date: '2020-09-14'
+slug: create-quick-3d-maps-in-r-with-g3r-package
+categories:
+  - gem
+tags:
+  - webgl
+---
+
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/threejs/three.min.js"></script>
+<script src="/rmarkdown-libs/three-geo/orbitControls.js"></script>
+<script src="/rmarkdown-libs/three-geo/three-geo.min.js"></script>
+<script src="/rmarkdown-libs/g3r-binding/g3r.js"></script>
+
+
+<pre class="r"><code>library(g3r)</code></pre>
+<pre><code>## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
+## when loading &#39;dplyr&#39;</code></pre>
+<pre class="r"><code># grand canyon
+g3r(lat = 36.2058, lon = -112.4413, alpha = TRUE, mapbox_token = MAPBOX_TOKEN) %&gt;% g3r_camera(.5,.5,1)</code></pre>
+<div id="htmlwidget-1" class="g3r html-widget" width="100%" height="480">
+<canvas id="htmlwidget-a3f2180b61d8f0c5010a-canvas" width="100%" height="480"></canvas>
+</div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"threegeo":{"tokenMapbox":"pk.eyJ1IjoiZHVycmFuaXUiLCJhIjoiY2p0Z21lazZqMDBjODQ5b2RrOXFwcHI5ZCJ9._DooiSrHiPv1bWhnTdMI1Q","unitsSide":1},"lat":36.2058,"lon":-112.4413,"radius":5,"zoom":12,"alpha":true,"backgroundColor":"0xffffff","backgroundAlpha":0,"camera":{"lat":0.5,"lon":0.5,"elevation":1}},"evals":[],"jsHooks":[]}</script>
