@@ -8,11 +8,6 @@
   </url>
   
   <url>
-    <loc>/post/2020/09/14/create-quick-3d-maps-in-r-with-g3r-package/</loc>
-    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/categories/gem/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
@@ -23,17 +18,22 @@
   </url>
   
   <url>
+    <loc>/post/2020/09/14/fit-multiple-models/</loc>
+    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/tags/</loc>
+    <loc>/tags/purrr/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/tags/webgl/</loc>
+    <loc>/tags/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
