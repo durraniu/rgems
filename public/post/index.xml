@@ -6,10 +6,21 @@
     <description>Recent content in Posts on R gems and collection of erroRs</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 14 Sep 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 16 Dec 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Dynamic Time Warping and Hierarchical Clustering with {gapminder}</title>
+      <link>/post/2020/12/16/dynamic-time-warping-and-hierarchical-clustering-with-gapminder/</link>
+      <pubDate>Wed, 16 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/16/dynamic-time-warping-and-hierarchical-clustering-with-gapminder/</guid>
+      <description>GoalI want to find which countries are the most similar to each other in terms of their life expectancy, population and GDP over the years
+Load packagessuppressPackageStartupMessages(library(tidyverse))suppressPackageStartupMessages(library(dtwclust))suppressPackageStartupMessages(library(factoextra))suppressPackageStartupMessages(library(gapminder))suppressPackageStartupMessages(library(ggrepel))We’ll use dtwclust for hierarchical clustering using the dtw_basic as the distance measure. If you are not familiar with these methods, please read about dynamic time warping and hierachical clustering.
+DataWe are going to use the gapminder dataset for comparing different countries.</description>
+    </item>
     
     <item>
       <title>How to fit different models on a dataset (the power of purrr)?</title>

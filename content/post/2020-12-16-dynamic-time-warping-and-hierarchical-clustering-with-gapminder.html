@@ -1,0 +1,268 @@
+---
+title: Dynamic Time Warping and Hierarchical Clustering with {gapminder}
+author: Umair Durrani
+date: '2020-12-16'
+slug: dynamic-time-warping-and-hierarchical-clustering-with-gapminder
+categories:
+  - gem
+tags:
+  - factoextra
+  - dtwclust
+---
+
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<div id="goal" class="section level1">
+<h1>Goal</h1>
+<p>I want to find which countries are the most similar to each other in terms of their life expectancy, population and GDP over the years</p>
+</div>
+<div id="load-packages" class="section level1">
+<h1>Load packages</h1>
+<pre class="r"><code>suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(dtwclust))
+suppressPackageStartupMessages(library(factoextra))
+suppressPackageStartupMessages(library(gapminder))
+suppressPackageStartupMessages(library(ggrepel))</code></pre>
+<p>We’ll use <code>dtwclust</code> for hierarchical clustering using the <code>dtw_basic</code> as the distance measure. If you are not familiar with these methods, please read about <a href="http://www.phon.ox.ac.uk/jcoleman/old_SLP/Lecture_5/DTW_explanation.html">dynamic time warping</a> and <a href="https://people.revoledu.com/kardi/tutorial/Clustering/Numerical%20Example.htm">hierachical clustering</a>.</p>
+</div>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>We are going to use the <code>gapminder</code> dataset for comparing different countries. Let’s see the first few rows here:</p>
+<pre class="r"><code>gapminder</code></pre>
+<pre><code>## # A tibble: 1,704 x 6
+##    country     continent  year lifeExp      pop gdpPercap
+##    &lt;fct&gt;       &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+##  1 Afghanistan Asia       1952    28.8  8425333      779.
+##  2 Afghanistan Asia       1957    30.3  9240934      821.
+##  3 Afghanistan Asia       1962    32.0 10267083      853.
+##  4 Afghanistan Asia       1967    34.0 11537966      836.
+##  5 Afghanistan Asia       1972    36.1 13079460      740.
+##  6 Afghanistan Asia       1977    38.4 14880372      786.
+##  7 Afghanistan Asia       1982    39.9 12881816      978.
+##  8 Afghanistan Asia       1987    40.8 13867957      852.
+##  9 Afghanistan Asia       1992    41.7 16317921      649.
+## 10 Afghanistan Asia       1997    41.8 22227415      635.
+## # ... with 1,694 more rows</code></pre>
+<p>Plot of life expectancy:</p>
+<pre class="r"><code># Let&#39;s plot the life expectancy over years 
+# and represent each country by a line------------------------------
+ggplot(data=gapminder)+
+  geom_line(aes(group=country, x=year, y=lifeExp,
+                color = continent)) +
+  facet_wrap(~ continent)</code></pre>
+<p><img src="/post/2020-12-16-dynamic-time-warping-and-hierarchical-clustering-with-gapminder_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Similarly, you can plot other variables to see their time-series.</p>
+</div>
+<div id="cluster-analysis" class="section level1">
+<h1>Cluster Analysis:</h1>
+<div id="step-1-choose-the-variables-you-want-to-use-in-calculating-the-dtw-dissimilarity-score" class="section level2">
+<h2>Step 1) Choose the variables you want to use in calculating the dtw dissimilarity score</h2>
+<p>Here, I am choosing to use only the countries in Asia, and I am going to use life expectancy, population and GDP for the estimation of dtw score.</p>
+<p>Also, it is important to scale all variables as right now they are in different scales. You can also scale them in the function that does the clustering.</p>
+<pre class="r"><code>### Function to scale a variable
+scale_this &lt;- function(x){
+  (x - mean(x, na.rm=TRUE)) / sd(x, na.rm=TRUE)
+}
+
+
+df &lt;- gapminder %&gt;% 
+  filter(continent == &quot;Asia&quot;) %&gt;% # countries in Asia only
+  group_by(country) %&gt;%           # scaling the vars for each country
+  mutate(lifeExp = scale_this(lifeExp),
+         pop = scale_this(pop),
+         gdpPercap = scale_this(gdpPercap)
+  ) %&gt;%
+  ungroup()
+
+df</code></pre>
+<pre><code>## # A tibble: 396 x 6
+##    country     continent  year lifeExp     pop gdpPercap
+##    &lt;fct&gt;       &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
+##  1 Afghanistan Asia       1952  -1.70  -1.04      -0.215
+##  2 Afghanistan Asia       1957  -1.40  -0.925      0.168
+##  3 Afghanistan Asia       1962  -1.08  -0.781      0.466
+##  4 Afghanistan Asia       1967  -0.678 -0.602      0.310
+##  5 Afghanistan Asia       1972  -0.273 -0.386     -0.579
+##  6 Afghanistan Asia       1977   0.188 -0.133     -0.153
+##  7 Afghanistan Asia       1982   0.466 -0.414      1.62 
+##  8 Afghanistan Asia       1987   0.656 -0.275      0.460
+##  9 Afghanistan Asia       1992   0.823  0.0695    -1.42 
+## 10 Afghanistan Asia       1997   0.840  0.900     -1.55 
+## # ... with 386 more rows</code></pre>
+</div>
+<div id="step-2-split-the-data-by-each-country-and-convert-to-a-matrix" class="section level2">
+<h2>Step 2) Split the data by each country and convert to a matrix</h2>
+<p>This is required by the <code>dtwclust</code> package.</p>
+<pre class="r"><code>df_matrix &lt;- df %&gt;% 
+  split(.$country, drop = T) %&gt;% 
+  purrr::map(~ .x[, c(&quot;lifeExp&quot;,    # names of all vars
+                       &quot;pop&quot;,
+                       &quot;gdpPercap&quot;
+                      )]) %&gt;% 
+  purrr::map(as.matrix) 
+
+### printing out df shows the matrices by country
+str(df_matrix[[1]])</code></pre>
+<pre><code>##  num [1:12, 1:3] -1.702 -1.402 -1.075 -0.678 -0.273 ...
+##  - attr(*, &quot;dimnames&quot;)=List of 2
+##   ..$ : NULL
+##   ..$ : chr [1:3] &quot;lifeExp&quot; &quot;pop&quot; &quot;gdpPercap&quot;</code></pre>
+</div>
+<div id="step-3-use-the-tsclust-function-from-the-dtwclust-package-for-clustering-using-the-dtw-score" class="section level2">
+<h2>Step 3) Use the <code>tsclust</code> function from the <code>dtwclust</code> package for clustering using the dtw score</h2>
+<p>Both steps are done using a single function:</p>
+<pre class="r"><code>clusters_gp &lt;- df_matrix %&gt;% 
+  tsclust(., 
+          k = 8L,                 # assuming clusters
+          distance = &quot;dtw_basic&quot;, # this is dtw score
+          seed = 390,             # to reproduce results
+          type=&quot;hierarchical&quot;,    # type of clustering
+          control = hierarchical_control(method = &quot;ward.D&quot;)) # method in hc
+
+clusters_gp</code></pre>
+<pre><code>## hierarchical clustering with 8 clusters
+## Using dtw_basic distance
+## Using PAM (Hierarchical) centroids
+## Using method ward.D 
+## 
+## Time required for analysis:
+##    user  system elapsed 
+##    0.11    0.01    0.13 
+## 
+## Cluster sizes with average intra-cluster distance:
+## 
+##   size  av_dist
+## 1    1 0.000000
+## 2    3 5.422677
+## 3    6 8.436258
+## 4   13 7.564260
+## 5    2 6.603003
+## 6    2 8.962541
+## 7    5 9.061991
+## 8    1 0.000000</code></pre>
+</div>
+</div>
+<div id="plotting-the-results" class="section level1">
+<h1>Plotting the results</h1>
+<div id="a-dendrogram-tree" class="section level2">
+<h2>A dendrogram (tree)</h2>
+<pre class="r"><code>fviz_dend(clusters_gp, k = 8, # Cut the tree in groups
+          cex = 0.5, # label size
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE, # Add rectangle around groups
+          horiz = TRUE, # Make the tree horizontal
+          ylab = &quot;DTW score&quot;,
+          palette = &quot;uchicago&quot;)</code></pre>
+<p><img src="/post/2020-12-16-dynamic-time-warping-and-hierarchical-clustering-with-gapminder_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="labeling-countries-based-on-clusters-and-visualizing-each-variable" class="section level2">
+<h2>Labeling countries based on clusters and visualizing each variable</h2>
+<p>We are now joining the estimated groups with the data:</p>
+<pre class="r"><code>Gps &lt;- as.data.frame(cutree(clusters_gp, k = 8)) # num of clusters
+colnames(Gps) &lt;- &quot;Gp&quot;
+Gps$country &lt;- row.names(Gps)
+row.names(Gps) &lt;- NULL
+
+
+
+## Getting the clustering info into the original data
+gapminder_Asia &lt;- gapminder %&gt;% 
+  filter(continent == &quot;Asia&quot;) %&gt;% 
+  left_join(x=., y=Gps, by = &quot;country&quot;)
+
+gapminder_Asia</code></pre>
+<pre><code>## # A tibble: 396 x 7
+##    country     continent  year lifeExp      pop gdpPercap    Gp
+##    &lt;chr&gt;       &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt; &lt;int&gt;
+##  1 Afghanistan Asia       1952    28.8  8425333      779.     1
+##  2 Afghanistan Asia       1957    30.3  9240934      821.     1
+##  3 Afghanistan Asia       1962    32.0 10267083      853.     1
+##  4 Afghanistan Asia       1967    34.0 11537966      836.     1
+##  5 Afghanistan Asia       1972    36.1 13079460      740.     1
+##  6 Afghanistan Asia       1977    38.4 14880372      786.     1
+##  7 Afghanistan Asia       1982    39.9 12881816      978.     1
+##  8 Afghanistan Asia       1987    40.8 13867957      852.     1
+##  9 Afghanistan Asia       1992    41.7 16317921      649.     1
+## 10 Afghanistan Asia       1997    41.8 22227415      635.     1
+## # ... with 386 more rows</code></pre>
+</div>
+<div id="plotting-each-variable-by-group" class="section level2">
+<h2>Plotting each variable by group</h2>
+<p>Following plots show the time-series of life expectancy, population and GDP by group:</p>
+<pre class="r"><code>### Select 15 countries at random to label on plot
+set.seed(123)
+
+selected_countries &lt;- gapminder_Asia %&gt;% 
+  group_by(Gp) %&gt;% 
+  select(country) %&gt;% 
+  unique() %&gt;% 
+  sample_n(size = 4, replace = TRUE) %&gt;% 
+  ungroup() %&gt;% 
+  pull(country) %&gt;% 
+  unique()
+
+
+sc_data &lt;- gapminder_Asia %&gt;% 
+  filter(year == 1982,
+         country %in% selected_countries)
+
+
+
+### lifeExp
+ggplot(data = gapminder_Asia,
+       aes(x = year, y = lifeExp)) +
+  geom_line(aes(group=country), color = &quot;grey&quot;) +
+  facet_wrap(~ Gp) +
+  geom_line(data = gapminder_Asia %&gt;% 
+              filter(country %in% selected_countries),
+            aes(group=country)) +
+  geom_text_repel(data = sc_data,
+            aes(label = country),
+            box.padding = 1,
+            nudge_x = .15,
+            nudge_y = .5,
+            arrow = arrow(length = unit(0.015, &quot;npc&quot;)),
+            hjust = 0
+            ) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-12-16-dynamic-time-warping-and-hierarchical-clustering-with-gapminder_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>### pop
+ggplot(data = gapminder_Asia,
+       aes(x = year, y = pop)) +
+  geom_line(aes(group=country), color = &quot;grey&quot;) +
+  facet_wrap(~ Gp, scales = &quot;free_y&quot;) +
+  geom_line(data = gapminder_Asia %&gt;% 
+              filter(country %in% selected_countries),
+            aes(group=country)) +
+  geom_text_repel(data = sc_data,
+                  aes(label = country),
+                  box.padding = 1,
+                  nudge_x = .15,
+                  nudge_y = .5,
+                  arrow = arrow(length = unit(0.015, &quot;npc&quot;)),
+                  hjust = 0
+  ) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-12-16-dynamic-time-warping-and-hierarchical-clustering-with-gapminder_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<pre class="r"><code>### gdpPercap
+ggplot(data = gapminder_Asia,
+       aes(x = year, y = gdpPercap)) +
+  geom_line(aes(group=country), color = &quot;grey&quot;) +
+  facet_wrap(~ Gp, scales = &quot;free_y&quot;) +
+  geom_line(data = gapminder_Asia %&gt;% 
+              filter(country %in% selected_countries),
+            aes(group=country)) +
+  geom_text_repel(data = sc_data,
+                  aes(label = country),
+                  box.padding = 1,
+                  nudge_x = .15,
+                  nudge_y = .5,
+                  arrow = arrow(length = unit(0.015, &quot;npc&quot;)),
+                  hjust = 0
+  ) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-12-16-dynamic-time-warping-and-hierarchical-clustering-with-gapminder_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
+</div>
+</div>
