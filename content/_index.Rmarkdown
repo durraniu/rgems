@@ -6,4 +6,8 @@ title: Home
 
 ## _Welcome_
 
+```{r, echo=FALSE, out.width="15%", fig.cap="Code from https://github.com/gkaramanis/aRtist/blob/main/genuary"}
+knitr::include_graphics("umair.gif")
+```
+
 Latest posts:  
