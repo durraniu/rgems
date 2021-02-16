@@ -26,13 +26,10 @@ footnotereturnlinkcontents = "↩"
     name = "Tags"
     url = "/tags/"
     weight = 4
-[[menu.main]]
-    name = "Subscribe"
-    url = "/index.xml"
 
 [params]
     description = "A website containing R gems I mostly found on twitter and how I fixed my own code."
-    footer = "&copy; [Umair Durrani](https://durraniu.github.io) 2017 -- 2019 | [Github](https://github.com/durraniu) | [Twitter](https://twitter.com/umairdurrani87)"
+    footer = "&copy; [Umair Durrani](https://durraniu.github.io) 2019 -- 2021 | [Github](https://github.com/durraniu) | [Twitter](https://twitter.com/umairdurrani87)"
 
 [markup]
   [markup.goldmark]
